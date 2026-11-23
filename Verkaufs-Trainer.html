@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verkaufs-Trainer</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#1d1f24;--muted:#6a6f7a;--line:#e4e2dc;--acc:#2f5bea;--acc2:#e9eefe;--ok:#1f8a4c;--okbg:#e5f5ec;--warn:#a86a00;--warnbg:#fdf2dc;--bad:#c23b3b;--badbg:#fbe7e7;--say:#f1f4ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121317;--card:#1b1d23;--ink:#eceef2;--muted:#9aa0ab;--line:#2c2f37;--acc:#7c9bff;--acc2:#232a44;--ok:#4cc57f;--okbg:#17301f;--warn:#e0a63a;--warnbg:#33290f;--bad:#ef6b6b;--badbg:#3a1c1c;--say:#1f2436}}
+:root[data-theme="dark"]{--bg:#121317;--card:#1b1d23;--ink:#eceef2;--muted:#9aa0ab;--line:#2c2f37;--acc:#7c9bff;--acc2:#232a44;--ok:#4cc57f;--okbg:#17301f;--warn:#e0a63a;--warnbg:#33290f;--bad:#ef6b6b;--badbg:#3a1c1c;--say:#1f2436}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 80px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+h1{font-size:24px;margin:0;letter-spacing:-.02em}h1 span{color:var(--acc)}
+h2{font-size:20px;margin:0 0 6px}h3{font-size:17px;margin:0 0 8px}
+.sub{color:var(--muted);margin:0 0 16px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;white-space:nowrap}
+.pill b{color:var(--acc)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;margin-bottom:8px;scrollbar-width:none;position:sticky;top:0;background:var(--bg);z-index:5}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 14px;font-size:15px;cursor:pointer}
+nav button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.grid .card{margin:0}
+.btn{border:0;background:var(--acc);color:#fff;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.btn.sm{padding:6px 11px;font-size:14px}
+.btn.ok{background:var(--ok)}.btn.warn{background:var(--warn)}.btn.bad{background:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.say{background:var(--say);border-left:4px solid var(--acc);border-radius:8px;padding:12px 14px;margin:8px 0;font-style:italic}
+.why{color:var(--muted);font-size:14.5px;margin:4px 0}
+.avoid{background:var(--badbg);color:var(--bad);border-radius:8px;padding:8px 12px;font-size:14.5px;margin:6px 0}
+.tip{background:var(--okbg);color:var(--ok);border-radius:8px;padding:8px 12px;font-size:14.5px;margin:6px 0}
+.limit{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:8px 12px;font-size:14.5px;margin:6px 0}
+.step{border-top:1px solid var(--line);padding:14px 0}.step:first-of-type{border-top:0;padding-top:4px}
+.step h4{margin:0 0 4px;font-size:16px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.seg button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14.5px}
+.seg button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:600}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0;background:var(--card)}
+summary{cursor:pointer;font-weight:600}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:12px 14px;margin:8px 0;cursor:pointer;font-size:15.5px}
+.opt.best{border-color:var(--ok);background:var(--okbg)}.opt.mid{border-color:var(--warn);background:var(--warnbg)}.opt.wrong{border-color:var(--bad);background:var(--badbg)}
+.opt:disabled{cursor:default}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 2px}.bar i{display:block;height:100%;background:var(--acc)}
+.big{font-size:19px;font-weight:600;margin:6px 0 10px}
+label{display:block;font-size:14px;color:var(--muted);margin:8px 0 4px}
+input,textarea,select{width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:10px;font:inherit}
+textarea{min-height:80px;resize:vertical}
+.badge{display:inline-block;font-size:12.5px;padding:2px 8px;border-radius:99px;background:var(--acc2);color:var(--acc);margin-right:4px}
+.badge.g{background:var(--okbg);color:var(--ok)}.badge.y{background:var(--warnbg);color:var(--warn)}.badge.r{background:var(--badbg);color:var(--bad)}
+.flash{min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:21px;font-weight:600;padding:20px}
+.muted{color:var(--muted)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:6px 0}.check input{width:auto;margin-top:5px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:15px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20}
+.toast.on{opacity:1}
+pre.out{white-space:pre-wrap;background:var(--say);border-radius:10px;padding:14px;font:15px/1.55 inherit;margin:0}
+@media (max-width:520px){.wrap{padding:12px 16px 80px}h1{font-size:21px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div><h1>Verkaufs-<span>Trainer</span></h1></div>
+  <div class="stats" id="stats"></div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===================== INHALTE ===================== */
+const GUIDES = {
+  kalt: {
+    name: "Kaltanruf",
+    goal: "Ziel: nicht verkaufen, sondern einen 15-Minuten-Termin für eine Demo vereinbaren.",
+    steps: [
+      ["1 · Ehrlicher Einstieg", "Guten Tag Herr Batzner, hier ist Jo von [Firma]. Ganz ehrlich: Ich rufe unangekündigt an. Geben Sie mir 30 Sekunden, warum ich anrufe, und dann entscheiden Sie, ob wir weiterreden?", "Wer die Störung offen zugibt, senkt den Abwehrreflex. Die Frage am Ende gibt dem Kunden Kontrolle, und Menschen bleiben eher im Gespräch, wenn sie selbst entscheiden dürfen.", "Nie „Haben Sie kurz Zeit?“ oder „Störe ich gerade?“ fragen. Darauf ist „Nein“ die bequemste Antwort."],
+      ["2 · Grund mit Beobachtung", "Ich arbeite mit Anwaltskanzleien hier in Rheinhessen. Mir ist auf Ihrer Webseite aufgefallen, dass man Termine nur telefonisch bekommt, obwohl Sie an über 20 Orten Beratungen anbieten. Darf ich Ihnen zwei kurze Fragen dazu stellen?", "Eine konkrete Beobachtung beweist, dass du dich vorbereitet hast. Das unterscheidet dich sofort von jedem Massen-Anrufer.", "Nicht mit deinem Produkt anfangen. Wer im ersten Satz „KI-Terminbuchung“ sagt, wird als Verkäufer abgelegt."],
+      ["3 · Problem-Fragen", "Wie läuft das aktuell, wenn ein neuer Mandant einen Termin will und gerade niemand ans Telefon geht? … Wie oft passiert das ungefähr pro Woche? … Was ist ein neues Mandat für Sie im Schnitt wert?", "Der Kunde soll 70 % reden. Wer das Problem selbst ausspricht, glaubt es mehr, als wenn du es behauptest. Notier dir die Zahlen.", "Nicht jede Antwort sofort mit deinem Produkt kontern. Erst zuhören, nachfragen: „Was heißt das konkret?“"],
+      ["4 · Schmerz bewusst machen", "Wenn ich richtig rechne: drei verpasste Anfragen pro Woche, ein Mandat ist rund 800 € wert, dann gehen da im Monat grob 10.000 € am Telefon vorbei. Ist das ungefähr realistisch?", "Verlustaversion: Ein drohender Verlust motiviert stärker als ein gleich großer Gewinn. Und das Ja des Kunden ist eine Selbstverpflichtung.", "Keine erfundenen Zahlen. Rechne nur mit dem, was der Kunde gesagt hat, sonst verlierst du Vertrauen."],
+      ["5 · Termin mit Alternativfrage", "Genau dafür habe ich eine Lösung für Kanzleien gebaut. Ich habe schon eine Vorschau vorbereitet, wie das bei Ihnen aussehen würde. Wollen wir uns 15 Minuten nehmen? Passt Ihnen eher Dienstag um 10 oder Donnerstag um 14 Uhr?", "Zwei konkrete Zeiten machen die Entscheidung leicht. Die Frage lautet dann nicht mehr „ob“, sondern „wann“.", "Nicht am Telefon den Preis oder alle Funktionen erklären. Das Telefonat verkauft nur den Termin."],
+      ["6 · Bestätigen und Entscheider klären", "Super, ich schicke Ihnen gleich eine kurze Bestätigung. Damit die Vorschau perfekt passt: Wer entscheidet bei so etwas außer Ihnen noch mit?", "So vermeidest du später „Das muss ich noch mit meinem Partner besprechen“. Lad den Mitentscheider gleich mit ein.", "Nicht auflegen, ohne Datum, Uhrzeit und E-Mail-Adresse zu wiederholen."]
+    ]
+  },
+  termin: {
+    name: "Persönlicher Termin",
+    goal: "Ziel: Der Kunde erkennt selbst, dass sich die Lösung lohnt, und sagt Ja zu einem konkreten nächsten Schritt.",
+    steps: [
+      ["1 · Ankommen und Beziehung", "Danke, dass Sie sich die Zeit nehmen. Schöne Kanzlei, wie lange sind Sie schon hier in Saulheim?", "Die ersten zwei Minuten entscheiden über Sympathie. Echtes Interesse an der Person wirkt mehr als jede Technik.", "Nicht zu lange Small Talk. Nach 2 bis 3 Minuten zur Sache kommen, Anwälte haben wenig Zeit."],
+      ["2 · Agenda und Erlaubnis", "Mein Vorschlag für die 15 Minuten: Ich frage kurz nach, wie es bei Ihnen läuft, zeige Ihnen dann die Vorschau, und am Ende sagen Sie mir ehrlich, ob das für Sie passt. Ein Nein ist völlig in Ordnung. Einverstanden?", "Wenn ein Nein erlaubt ist, sinkt der Druck, und der Kunde öffnet sich. Gleichzeitig hast du ihn vorab verpflichtet, am Ende eine Entscheidung zu treffen.", "Nicht direkt mit dem Laptop und der Präsentation loslegen."],
+      ["3 · Bedarf wiederholen", "Am Telefon haben Sie gesagt, dass pro Woche etwa drei Anfragen verloren gehen und ein Mandat rund 800 € wert ist. Hat sich daran etwas geändert? Gibt es noch etwas, das Sie nervt?", "Starte mit SEINEN Worten und Zahlen. Das zeigt, dass du zugehört hast, und erinnert ihn an seinen Schmerz.", "Nicht annehmen, dass alles noch genauso ist. Immer nachfragen."],
+      ["4 · Demo nur auf seine Punkte", "Ich zeige Ihnen jetzt genau das, was nachts um 22 Uhr passiert, wenn ein neuer Mandant auf Ihrer Seite landet. Achten Sie mal darauf, wie schnell er seinen Termin hat.", "Maximal 5 Minuten zeigen und nur das, was sein Problem löst. Jede Funktion, die er nicht braucht, verwässert den Eindruck.", "Keine Funktionsliste herunterbeten. Technik interessiert ihn nicht, das Ergebnis schon."],
+      ["5 · Testfrage", "Wie würde das bei Ihnen im Alltag helfen?", "Er formuliert den Nutzen selbst. Was er sagt, glaubt er, und du erfährst, ob noch Zweifel da sind.", "Nicht fragen „Gefällt Ihnen das?“. Das ist zu unverbindlich."],
+      ["6 · Nutzen vorrechnen", "Sie verlieren aktuell rund 10.000 € im Monat an verpassten Anfragen. Wenn die Terminbuchung nur jede dritte davon rettet, sind das über 3.000 € im Monat. Die Lösung kostet 500 € im Monat.", "Kontrast: Neben dem Verlust wirkt der Preis klein. Rechne immer konservativ, ein Drittel ist glaubwürdiger als „alles“.", "Den Preis nie vor dem Nutzen nennen."],
+      ["7 · Angebot und Schweigen", "Die Einrichtung kostet einmalig 2.500 €, danach 500 € im Monat. Für die ersten drei Kanzleien in der Region mache ich die Einrichtung zum halben Preis. Wollen wir starten?", "Nach der Frage: schweigen. Wer zuerst redet, gibt nach. Die Stille fühlt sich lang an, ist aber Bedenkzeit für den Kunden.", "Nicht direkt nach der Preisansage rechtfertigen oder Rabatt anbieten."]
+    ]
+  },
+  abschluss: {
+    name: "Abschluss",
+    goal: "Ziel: aus Interesse eine klare Entscheidung machen, ohne Druck.",
+    steps: [
+      ["1 · Zusammenfassen", "Lassen Sie mich kurz zusammenfassen: Sie wollen keine Anfragen mehr verlieren, Ihr Sekretariat soll entlastet werden, und es soll in zwei Wochen laufen. Habe ich etwas vergessen?", "Drei Ja-Antworten zu seinen eigenen Zielen bauen eine Ja-Haltung auf, bevor die Kaufentscheidung kommt.", "Keine neuen Argumente mehr einbringen. Jetzt geht es um Entscheidung, nicht um Information."],
+      ["2 · Abschlussfrage", "Sollen wir das so machen?", "Kurz, direkt, ruhig. Eine klare Frage verdient eine klare Antwort.", "Nicht „Was meinen Sie?“ oder „Wie klingt das?“. Das lädt zum Aufschieben ein."],
+      ["3 · Pilot als Brücke", "Wenn Ihnen der volle Schritt zu groß ist: Wir starten mit einem Standort, Ihrem Hauptsitz in Saulheim. Läuft das nach vier Wochen nicht, hören wir auf.", "Ein kleiner erster Schritt senkt das Risiko. Wer einmal Ja gesagt hat, bleibt meistens dabei.", "Den Pilot nicht als Erstes anbieten, sondern erst, wenn er zögert."],
+      ["4 · Nächster Schritt", "Perfekt. Ich schicke Ihnen heute das Angebot. Für den Start brauche ich von Ihnen nur Ihre Öffnungszeiten und die häufigsten Fragen. Passt Ihnen ein Kickoff am Mittwoch?", "Ein konkreter Termin macht das Ja verbindlich. Ohne nächsten Schritt kühlt jedes Ja ab.", "Nach dem Ja nicht weiterverkaufen. Wer nach dem Abschluss noch argumentiert, sät Zweifel."],
+      ["5 · Wenn er nachdenken will", "Klar, das ist eine Entscheidung. Damit ich Ihnen helfen kann: Woran genau möchten Sie noch denken, am Preis, am Ablauf oder an etwas anderem?", "„Ich muss nachdenken“ ist fast immer ein versteckter Einwand. Finde ihn heraus, sonst endet es im Schweigen.", "Nicht „Okay, melden Sie sich“ sagen. Mach immer einen festen Rückruftermin aus."]
+    ]
+  },
+  follow: {
+    name: "Nachfassen",
+    goal: "Ziel: freundlich dranbleiben, ohne zu nerven. Die meisten Abschlüsse kommen erst nach dem 3. bis 5. Kontakt.",
+    steps: [
+      ["1 · Am selben Tag", "Hallo Herr Batzner, danke für das Gespräch heute. Wie besprochen anbei die Vorschau und das Angebot. Ich melde mich Donnerstag um 10 Uhr kurz bei Ihnen.", "Schnelligkeit wirkt professionell, und der angekündigte Rückruf ist schon vereinbart.", "Keine langen Mails. Drei Sätze reichen."],
+      ["2 · Nach 3 bis 4 Tagen mit Mehrwert", "Kurze Info: Eine Kanzlei in Mainz hat mit der Terminbuchung im ersten Monat 11 zusätzliche Erstgespräche bekommen. Ich dachte, das interessiert Sie.", "Jede Nachfass-Nachricht sollte einen neuen Grund liefern, nicht nur „Haben Sie schon entschieden?“.", "Nur echte Beispiele verwenden. Erfundene Fallstudien zerstören dein Vertrauen dauerhaft."],
+      ["3 · Die ehrliche Abschlussnachricht", "Ich will Sie nicht weiter belästigen. Ist das Thema bei Ihnen gerade einfach keine Priorität? Dann melde ich mich in ein paar Monaten nochmal.", "Die Erlaubnis zum Nein bringt oft eine Antwort, manchmal sogar ein Ja. Und wer Nein sagt, gibt dir Klarheit.", "Nicht beleidigt oder vorwurfsvoll klingen."]
+    ]
+  }
+};
+
+const PRESENCE = [
+  ["Stimme", "Telefonier im Stehen und lächle beim Sprechen. Das hört man wirklich. Sprich etwas tiefer und ruhiger als im Alltag.", "Mach dir einen Spiegel neben das Telefon."],
+  ["Tempo und Pausen", "Sprich langsamer, als es sich für dich richtig anfühlt. Nach jeder Frage zwei Sekunden Pause, auch wenn es unangenehm ist.", "Wer schnell redet, wirkt nervös und wie ein Verkäufer."],
+  ["Satzmelodie", "Aussagen enden unten, nicht oben. „Ich habe eine Lösung dafür.“ klingt sicher. Geht die Stimme am Ende hoch, klingt es wie eine Frage und unsicher.", "Lies deinen Pitch laut und nimm dich mit dem Handy auf."],
+  ["Klare Worte", "Streiche Weichmacher: „eigentlich“, „vielleicht“, „ich wollte nur mal kurz“, „ein bisschen“. Sie machen dich klein.", "Statt „Ich wollte mal fragen, ob…“ sag: „Ich rufe an, weil…“"],
+  ["Zuhören", "70 % redet der Kunde, 30 % du. Notier seine Worte und benutz sie später wieder. Fasse zusammen: „Wenn ich Sie richtig verstehe, …“", "Wer fragt, führt das Gespräch."],
+  ["Spiegeln", "Pass dich an Tempo, Lautstärke und Begriffe des Kunden an. Sagt er „Mandanten“, sagst du nicht „Kunden“.", "Spiegeln schafft unbewusst Vertrautheit. Aber nicht nachäffen."],
+  ["Körpersprache im Termin", "Aufrecht sitzen, Hände sichtbar auf dem Tisch, Blickkontakt beim Zuhören. Leicht nach vorne lehnen, wenn er spricht. Mach Notizen auf Papier, das zeigt Wertschätzung.", "Arme verschränken und auf den Laptop starren wirken abwesend."],
+  ["Kleidung und Auftritt", "Eine Stufe gepflegter als der Kunde, nicht zwei. Bei Anwälten: Hemd oder Bluse, saubere Schuhe. Pünktlich, eher fünf Minuten früher.", "Du verkaufst Seriosität mit."],
+  ["Mindset", "Du rufst nicht an, um etwas loszuwerden, sondern weil du ein echtes Problem lösen kannst. Wenn es nicht passt, ist ein Nein für beide gut.", "Ein Nein gilt dem Angebot, nicht dir. Jedes Nein bringt dich dem nächsten Ja näher."],
+  ["Vor dem Anruf", "Drei tiefe Atemzüge, Beobachtung zum Lead noch einmal lesen, erster Satz laut vorsprechen. Dann wählen, ohne lange zu zögern.", "Feste Anrufblöcke, z. B. 9 bis 11 Uhr, sind leichter als einzelne Anrufe zwischendurch."]
+];
+
+const PSY = [
+  ["Verlustaversion", "Menschen wollen Verluste stärker vermeiden, als sie gleich große Gewinne wollen.", "Jede verpasste Anfrage ist ein Mandat, das jetzt bei einer anderen Kanzlei landet.", "Nur echte, mit dem Kunden berechnete Verluste. Keine Angstmache."],
+  ["Ankereffekt", "Die erste Zahl prägt, wie alle folgenden Zahlen wahrgenommen werden.", "Eine Sekretariatskraft für die Telefonzeiten kostet Sie rund 3.000 € im Monat. Unsere Lösung liegt bei 500 €.", "Der Vergleich muss realistisch sein, kein künstlich aufgeblasener Preis."],
+  ["Social Proof", "Wir orientieren uns daran, was andere wie wir tun.", "Mehrere Kanzleien in Rheinhessen arbeiten schon so.", "Nur sagen, was stimmt. Am Anfang lieber: „Sie wären eine der ersten Kanzleien in der Region.“"],
+  ["Reziprozität", "Wer etwas bekommt, möchte etwas zurückgeben.", "Ich habe Ihnen schon eine Vorschau gebaut, wie das bei Ihnen aussehen würde.", "Das Geschenk muss echt nützlich sein und ohne Verpflichtung."],
+  ["Commitment und Konsistenz", "Wer kleinen Aussagen zugestimmt hat, bleibt gerne dabei.", "Sie haben gesagt, dass Ihnen jede verlorene Anfrage wehtut. Dann lassen Sie uns genau da ansetzen.", "Den Kunden nicht in Ja-Fallen locken. Echte Zustimmung sammeln."],
+  ["Knappheit", "Was begrenzt ist, wirkt wertvoller.", "Den Pilotpreis biete ich nur den ersten drei Kanzleien an, weil ich die selbst betreue.", "Nur echte Begrenzungen. Ein ausgedachter Countdown ist Manipulation."],
+  ["Autorität", "Wir vertrauen Experten.", "Ich arbeite nur mit Kanzleien und kenne die typischen Abläufe und Datenschutzfragen.", "Keine Titel oder Erfahrungen erfinden."],
+  ["Sympathie", "Wir kaufen von Menschen, die wir mögen und die uns ähnlich sind.", "Ich bin selbst aus Saulheim, deshalb habe ich bei Ihnen angefangen.", "Gemeinsamkeiten nur nennen, wenn sie stimmen."],
+  ["Framing", "Wie etwas formuliert ist, verändert die Wahrnehmung.", "Das sind rund 16 € am Tag, weniger als ein einziges Erstgespräch.", "Die Gesamtsumme nie verstecken. Framing ergänzt, ersetzt aber keine Transparenz."],
+  ["Entscheidungsfreiheit", "Wer betont frei entscheiden darf, sagt häufiger Ja.", "Sie entscheiden natürlich selbst, ob das für Sie passt.", "Das Nein muss wirklich akzeptiert werden."]
+];
+
+const OBJ = [
+  ["Kein Interesse.", "Verstehe ich, Sie kennen mich ja auch noch nicht. Darf ich nur eine Frage stellen: Wie viele Mandantenanfragen landen bei Ihnen außerhalb der Telefonzeiten? Wenn das kein Thema ist, lege ich sofort auf."],
+  ["Ich habe keine Zeit.", "Absolut, deshalb mache ich es kurz. Wann passt es Ihnen besser für zwei Minuten, heute um 17 Uhr oder morgen früh um 9?"],
+  ["Schicken Sie mir Infos per Mail.", "Mache ich gerne. Damit ich Ihnen nicht irgendwas schicke, sondern genau das Richtige: Was wäre für Sie am wichtigsten, weniger verpasste Anfragen oder weniger Telefonarbeit im Sekretariat?"],
+  ["Das ist zu teuer.", "Verstehe ich. Zu teuer im Vergleich wozu? … Wenn die Lösung nur ein zusätzliches Mandat im Monat bringt, hat sie sich bei Ihnen schon bezahlt. Sehen Sie das anders?"],
+  ["Brauchen wir nicht, läuft gut.", "Das freut mich, dann sind Sie weiter als viele. Darf ich fragen, wie Sie es machen, dass auch abends und am Wochenende keine Anfrage verloren geht?"],
+  ["Das muss ich mit meinem Partner besprechen.", "Natürlich, das ist eine gemeinsame Entscheidung. Was glauben Sie, welche Frage wird er als Erstes stellen? … Wollen wir einen kurzen Termin zu dritt machen, dann kann ich das direkt beantworten?"],
+  ["KI und Datenschutz, das ist mir zu unsicher.", "Sehr berechtigt, gerade bei Mandantendaten. Die Daten liegen auf Servern in der EU, und es wird ein Vertrag zur Auftragsverarbeitung geschlossen. Was wäre für Sie das wichtigste Kriterium, damit Sie sich sicher fühlen?"],
+  ["Meine Mandanten wollen mit einem Menschen sprechen.", "Das stimmt, und das sollen sie auch. Die Terminbuchung ersetzt nicht Sie, sie sorgt dafür, dass der Mandant überhaupt bis zu Ihnen kommt, statt aufzulegen und woanders anzurufen."],
+  ["Melden Sie sich in drei Monaten.", "Mache ich gerne. Darf ich fragen, was sich in drei Monaten ändert? … Und bis dahin gehen wie viele Anfragen verloren? Wollen wir nicht wenigstens die Vorschau anschauen, ganz unverbindlich?"],
+  ["Woher haben Sie meine Nummer?", "Von Ihrer Webseite und Google Maps. Ich schaue mir Kanzleien in der Region gezielt an und rufe nur an, wenn mir etwas Konkretes auffällt. Bei Ihnen war das die Terminvergabe."],
+  ["Was kostet das denn? (früh im Gespräch)", "Das hängt davon ab, wie viele Standorte und Anfragen Sie haben, für kleine Kanzleien beginnt es bei ein paar hundert Euro im Monat. Damit ich Ihnen eine ehrliche Zahl nennen kann: Wie viele neue Anfragen haben Sie pro Woche?"],
+  ["Ich muss darüber nachdenken.", "Klar, das ist eine Entscheidung. Damit ich Ihnen helfen kann: Woran genau möchten Sie noch denken, eher am Preis, am Ablauf oder ob es zu Ihnen passt?"]
+];
+
+const SIMS = [
+  {s:"Kaltanruf. Die Sekretärin nimmt ab: „Kanzlei Batzner, guten Tag.“", o:[
+    ["Hallo, ich hätte gerne Herrn Batzner, ich möchte ihm ein KI-Tool vorstellen.",0,"Du hast dich als Verkäufer zu erkennen gegeben, bevor du einen Grund geliefert hast. Die Sekretärin ist genau dafür da, das abzufangen."],
+    ["Guten Tag, hier ist Jo von [Firma]. Mir ist bei Ihrer Terminvergabe etwas aufgefallen, das ich gerne kurz mit Herrn Batzner besprechen würde. Ist er heute erreichbar?",10,"Freundlich, mit Namen und mit einem konkreten Anlass, ohne zu verkaufen. Und eine Frage, die sie leicht mit Ja oder einer Uhrzeit beantworten kann."],
+    ["Ist der Chef da? Ist privat.",0,"Eine Lüge zerstört Vertrauen, sobald sie auffliegt. Und das passiert spätestens nach dem zweiten Satz."]]},
+  {s:"Herr Batzner ist dran: „Ja, Batzner?“", o:[
+    ["Guten Tag, Herr Batzner, hier ist Jo von [Firma]. Ganz ehrlich, ich rufe unangekündigt an. Geben Sie mir 30 Sekunden, und dann entscheiden Sie, ob wir weiterreden?",10,"Ehrlich, kurz, und er bekommt die Kontrolle. Das senkt den Abwehrreflex."],
+    ["Hallo Herr Batzner, haben Sie kurz Zeit?",0,"„Nein“ ist die bequemste Antwort darauf. Du gibst ihm einen Ausgang, bevor du einen Grund geliefert hast."],
+    ["Guten Tag, ich bin Jo und habe eine revolutionäre KI-Lösung, die Ihre Kanzlei komplett verändern wird!",0,"Übertreibungen klingen nach Werbung. Gerade Anwälte reagieren darauf allergisch."]]},
+  {s:"Er sagt: „Na gut, 30 Sekunden.“", o:[
+    ["Wir bieten KI-Terminbuchung, Telefonassistenten, Webseiten und Social Media an. Was davon interessiert Sie?",2,"Ein Bauchladen. Er muss selbst herausfinden, was er braucht, das ist anstrengend."],
+    ["Ich habe gesehen, dass Sie an über 20 Orten Beratungen anbieten, man aber nur telefonisch einen Termin bekommt. Wie läuft das, wenn gerade niemand rangeht?",10,"Konkrete Beobachtung plus offene Frage. Jetzt redet er über sein Problem, nicht über dein Produkt."],
+    ["Unsere Lösung kostet nur 500 € im Monat und spart Ihnen viel Zeit.",0,"Preis vor Nutzen. Ohne dass er sein Problem gespürt hat, wirken 500 € teuer."]]},
+  {s:"Er antwortet: „Die meisten rufen halt nochmal an. Glaube ich.“", o:[
+    ["Genau das stimmt eben nicht! Studien zeigen, dass 80 % nicht nochmal anrufen.",2,"Widersprechen macht ihn defensiv. Und eine Statistik, die du nicht belegen kannst, ist riskant."],
+    ["Okay, dann ist das ja kein Problem für Sie. Schönen Tag noch.",0,"Zu früh aufgegeben. Sein „Glaube ich“ zeigt, dass er es eigentlich nicht weiß."],
+    ["Kann gut sein. Wie viele Anfragen kommen ungefähr pro Woche rein, und wissen Sie, wie viele davon nach einem verpassten Anruf nochmal anrufen?",10,"Du lässt ihm seine Meinung und bringst ihn mit einer Frage dazu, selbst nachzudenken. So entdeckt er die Lücke selbst."]]},
+  {s:"Er sagt: „Schicken Sie mir einfach mal Infos per Mail.“", o:[
+    ["Mache ich gerne. Damit es nicht irgendwas ist: Was wäre Ihnen wichtiger, weniger verpasste Anfragen oder weniger Telefonarbeit im Sekretariat?",10,"Du sagst Ja und hältst das Gespräch offen. Mit der Antwort kannst du nachhaken oder die Mail wirklich passend machen."],
+    ["Alles klar, wie ist Ihre E-Mail-Adresse?",2,"Höflich, aber meistens das Ende. Die Mail landet ungelesen im Ordner."],
+    ["Mails liest doch keiner. Lassen Sie uns lieber gleich einen Termin machen.",0,"Du stellst ihn bloß. Auch wenn du recht hast, fühlt er sich überfahren."]]},
+  {s:"Im Termin. Du hast die Demo gezeigt. Er nickt, sagt aber nichts.", o:[
+    ["Und, gefällt es Ihnen?",2,"Zu unverbindlich. „Ja, ganz nett“ bringt dich nicht weiter."],
+    ["Wie würde das bei Ihnen im Alltag helfen?",10,"Er formuliert den Nutzen selbst. Was er laut sagt, glaubt er, und du hörst sofort, ob noch Zweifel da sind."],
+    ["Ich zeige Ihnen noch zehn weitere Funktionen, dann sind Sie sicher überzeugt.",0,"Mehr ist nicht besser. Jede Funktion, die er nicht braucht, verwässert den Eindruck."]]},
+  {s:"Du hast den Preis genannt: 2.500 € Einrichtung und 500 € im Monat. Er schweigt.", o:[
+    ["… (du schweigst ebenfalls und wartest)",10,"Genau richtig. Die Stille ist seine Bedenkzeit. Wer zuerst redet, gibt meistens nach."],
+    ["Aber ich kann Ihnen natürlich auch einen Rabatt geben!",0,"Du verhandelst gegen dich selbst, obwohl er noch gar nichts gesagt hat."],
+    ["Ich weiß, das klingt erstmal viel, aber…",2,"Du bestätigst, dass es teuer ist, bevor er es überhaupt gedacht hat."]]},
+  {s:"Er sagt: „Klingt gut, aber ich muss darüber nachdenken.“", o:[
+    ["Klar, melden Sie sich einfach, wenn Sie so weit sind.",0,"Damit gibst du die Kontrolle ab. Die meisten melden sich nie."],
+    ["Verstehe. Woran genau möchten Sie noch denken, eher am Preis, am Ablauf oder ob es zu Ihnen passt?",10,"„Nachdenken“ verdeckt fast immer einen konkreten Einwand. Jetzt kannst du ihn klären."],
+    ["Das Angebot gilt aber nur heute!",0,"Künstlicher Druck. Wenn das nicht stimmt, ist es Manipulation, und er merkt es."]]}
+];
+
+const QUIZ = [
+  ["Was ist das Ziel eines Kaltanrufs?",["Das Produkt direkt verkaufen","Einen Termin für eine Demo vereinbaren","Den Preis nennen","Eine E-Mail-Adresse sammeln"],1,"Am Telefon verkaufst du nur den nächsten Schritt. Für die Entscheidung braucht der Kunde die Demo."],
+  ["Welcher Einstieg ist am stärksten?",["„Haben Sie kurz Zeit?“","„Störe ich gerade?“","„Ich rufe unangekündigt an. Geben Sie mir 30 Sekunden?“","„Ich habe ein tolles Angebot für Sie!“"],2,"Ehrlichkeit plus Kontrolle für den Kunden senkt die Abwehr."],
+  ["Wie viel Redeanteil sollte der Kunde haben?",["Etwa 30 %","Etwa 50 %","Etwa 70 %","So wenig wie möglich"],2,"Wer fragt, führt. Und der Kunde glaubt, was er selbst sagt."],
+  ["Was machst du direkt nach der Preisansage?",["Den Preis begründen","Einen Rabatt anbieten","Schweigen und warten","Weitere Funktionen zeigen"],2,"Die Stille ist Bedenkzeit. Wer zuerst redet, gibt nach."],
+  ["„Ich muss darüber nachdenken“ bedeutet meistens…",["Er will wirklich nachdenken","Es gibt einen versteckten Einwand","Er hat kein Geld","Er kauft sicher"],1,"Frag nach, woran genau er denken will."],
+  ["Welches Prinzip nutzt du mit „Jede verpasste Anfrage landet bei einer anderen Kanzlei“?",["Reziprozität","Verlustaversion","Autorität","Sympathie"],1,"Verluste wirken stärker als Gewinne."],
+  ["Wann nennst du den Preis?",["Ganz am Anfang","Nachdem der Nutzen klar ist","Erst wenn der Kunde fragt","Nie im Termin"],1,"Ohne Nutzen wirkt jeder Preis zu hoch."],
+  ["Welche Abschlussfrage ist am besten?",["„Was meinen Sie?“","„Sollen wir das so machen?“","„Wie klingt das für Sie?“","„Wollen Sie es sich noch überlegen?“"],1,"Eine klare Frage bekommt eine klare Antwort."],
+  ["Was ist bei Knappheit wichtig?",["Immer einen Countdown einbauen","Nur echte Begrenzungen nennen","Den Preis künstlich erhöhen","Knappheit nie nutzen"],1,"Ausgedachte Knappheit ist Manipulation und kostet Vertrauen."],
+  ["Wie klingt Sicherheit am Telefon?",["Schnell sprechen","Stimme am Satzende hoch","Langsam, Aussagen enden unten","Viele Füllwörter"],2,"Ruhiges Tempo und fallende Satzmelodie wirken souverän."],
+  ["Wozu dient die Testfrage „Wie würde das bei Ihnen helfen?“",["Small Talk","Er formuliert den Nutzen selbst","Zeit gewinnen","Den Preis vorbereiten"],1,"Was er laut sagt, glaubt er. Und du hörst Zweifel sofort."],
+  ["Was tust du nach dem Ja?",["Weitere Vorteile aufzählen","Konkreten nächsten Schritt vereinbaren","Ein Upsell anbieten","Auflegen"],1,"Nach dem Ja nicht weiterverkaufen, sondern verbindlich machen."]
+];
+
+const CHALLENGES = [
+  "Mach 10 Wählversuche. Ziel ist nicht der Abschluss, sondern 10-mal den Einstiegssatz sagen.",
+  "Nimm deinen Pitch mit dem Handy auf und hör ihn dir an. Achte auf Tempo und Füllwörter.",
+  "Übe drei Einwände laut, bis du die Antwort ohne Ablesen kannst.",
+  "Spiel den Simulator komplett durch und hol mindestens 70 Punkte.",
+  "Schreib für drei Leads je eine konkrete Beobachtung auf.",
+  "Führe heute ein Gespräch, in dem der andere mindestens 70 % redet, auch privat zählt.",
+  "Sag deinen Ein-Satz-Pitch zehnmal laut, im Stehen und mit einem Lächeln.",
+  "Mach nach jedem Anruf einen Journal-Eintrag: Was lief gut, was mache ich anders?",
+  "Übe die Preisansage vor dem Spiegel und halte danach fünf Sekunden Stille aus.",
+  "Ruf eine Kanzlei an, nur um zu üben, egal wie es ausgeht."
+];
+
+const LEVELS = [[0,"Einsteiger"],[100,"Telefon-Starter"],[250,"Gesprächsführer"],[500,"Closer"],[900,"Top-Verkäufer"],[1500,"Verkaufs-Meister"]];
+
+/* ===================== STATE ===================== */
+const KEY = "verkaufsTrainerV1";
+const today = () => new Date().toISOString().slice(0,10);
+let st = {pts:0, days:[], done:{}, cards:{}, quizBest:0, simBest:0, journal:[], pitch:{}, chal:{}, tab:"heute"};
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) st = Object.assign(st, s); } catch(e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e) {} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("on"),1800); }
+function addPts(n, msg){ st.pts += n; if (!st.days.includes(today())) st.days.push(today()); save(); stats(); if (msg) toast(`+${n} Punkte · ${msg}`); }
+function level(){ let l=LEVELS[0], next=null; for (let i=0;i<LEVELS.length;i++){ if (st.pts>=LEVELS[i][0]) { l=LEVELS[i]; next=LEVELS[i+1]||null; } } return {l,next}; }
+function streak(){ let n=0; const d=new Date(); if(!st.days.includes(today())) d.setDate(d.getDate()-1); while(st.days.includes(d.toISOString().slice(0,10))){ n++; d.setDate(d.getDate()-1); } return n; }
+function stats(){ const {l}=level(); $("stats").innerHTML = `<span class="pill">🏅 <b>${esc(l[1])}</b></span><span class="pill">⭐ <b>${st.pts}</b> Punkte</span><span class="pill">🔥 <b>${streak()}</b> Tage</span>`; }
+
+/* ===================== TABS ===================== */
+const TABS = [["heute","Heute"],["leit","Leitfäden"],["auftritt","Auftreten"],["psy","Psychologie"],["einw","Einwände"],["sim","Simulator"],["quiz","Quiz"],["pitch","Mein Pitch"],["journal","Journal"]];
+function nav(){ $("nav").innerHTML = TABS.map(([k,t]) => `<button class="${st.tab==k?"on":""}" data-tab="${k}">${t}</button>`).join(""); }
+function go(t){ st.tab=t; save(); nav(); render(); window.scrollTo({top:0}); }
+
+let guide = "kalt", simI = 0, simScore = 0, simAns = null, quizI = 0, quizScore = 0, quizAns = null, cardI = 0, cardOpen = false, psyOpen = -1;
+
+function render(){
+  const m = $("main");
+  const f = {heute, leit, auftritt, psy, einw, sim, quiz, pitch, journal}[st.tab] || heute;
+  m.innerHTML = f();
+}
+
+/* --- Heute --- */
+function heute(){
+  const {l,next} = level();
+  const pct = next ? Math.round((st.pts-l[0])/(next[0]-l[0])*100) : 100;
+  const dayNo = Math.floor(Date.now()/864e5);
+  const ch = CHALLENGES[dayNo % CHALLENGES.length];
+  const chDone = st.chal[today()];
+  const green = Object.values(st.cards).filter(v=>v=="g").length;
+  const stepsDone = Object.keys(st.done).length;
+  const allSteps = Object.values(GUIDES).reduce((a,g)=>a+g.steps.length,0);
+  return `
+  <div class="card"><h2>Hallo! Bereit für dein Training?</h2>
+  <p class="sub">Zehn Minuten am Tag reichen. Wichtig ist, dass du alles <b>laut</b> übst, nicht nur liest.</p>
+  <div class="muted">Level: <b>${esc(l[1])}</b>${next?` · noch ${next[0]-st.pts} Punkte bis „${esc(next[1])}“`:" · höchstes Level erreicht"}</div>
+  <div class="bar"><i style="width:${pct}%"></i></div></div>
+  <div class="card"><h3>🎯 Challenge des Tages</h3><p class="big">${esc(ch)}</p>
+  ${chDone?`<span class="badge g">✓ Erledigt</span>`:`<button class="btn" data-act="chal">Erledigt (+15)</button>`}</div>
+  <div class="grid">
+    <div class="card"><h3>Leitfäden</h3><p class="muted">${stepsDone} von ${allSteps} Schritten geübt</p><div class="bar"><i style="width:${Math.round(stepsDone/allSteps*100)}%"></i></div><button class="btn ghost sm" data-tab="leit" style="margin-top:8px">Weiter üben</button></div>
+    <div class="card"><h3>Einwände</h3><p class="muted">${green} von ${OBJ.length} sicher (grün)</p><div class="bar"><i style="width:${Math.round(green/OBJ.length*100)}%"></i></div><button class="btn ghost sm" data-tab="einw" style="margin-top:8px">Karten üben</button></div>
+    <div class="card"><h3>Simulator & Quiz</h3><p class="muted">Bester Simulator: ${st.simBest} / ${SIMS.length*10}<br>Bestes Quiz: ${st.quizBest} / ${QUIZ.length}</p><button class="btn ghost sm" data-tab="sim" style="margin-top:8px">Simulator starten</button></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>So nutzt du den Trainer</h3>
+  <p>1. <b>Leitfäden</b> lesen und jeden Satz einmal laut sprechen. 2. <b>Einwände</b> als Karteikarten üben, bis alle grün sind. 3. Im <b>Simulator</b> testen, wie du reagierst. 4. In <b>Mein Pitch</b> deinen eigenen Leitfaden erstellen. 5. Nach jedem echten Gespräch ins <b>Journal</b> schreiben.</p>
+  <div class="row"><button class="btn ghost sm" data-act="export">⬇ Fortschritt sichern</button><label class="btn ghost sm" style="display:inline-block;margin:0;color:var(--acc);cursor:pointer">⬆ Sicherung laden<input type="file" id="imp" accept=".json" hidden></label></div>
+  <p class="muted" style="font-size:13.5px;margin-top:8px">Dein Fortschritt wird nur in diesem Browser gespeichert. Mit „Fortschritt sichern“ nimmst du ihn auf ein anderes Gerät mit.</p></div>`;
+}
+
+/* --- Leitfäden --- */
+function leit(){
+  const g = GUIDES[guide];
+  return `<div class="seg">${Object.entries(GUIDES).map(([k,v])=>`<button class="${guide==k?"on":""}" data-guide="${k}">${v.name}</button>`).join("")}</div>
+  <div class="card"><h2>${g.name}</h2><p class="sub">${g.goal}</p>
+  ${g.steps.map((s,i)=>{ const k=guide+i, d=st.done[k]; return `<div class="step"><h4>${esc(s[0])}</h4>
+  <div class="say">„${esc(s[1])}“</div><p class="why">💡 ${esc(s[2])}</p><div class="avoid">✗ ${esc(s[3])}</div>
+  ${d?`<span class="badge g">✓ Laut geübt</span>`:`<button class="btn ghost sm" data-step="${k}">Laut geübt (+2)</button>`}</div>`; }).join("")}
+  </div>
+  <div class="tip">Tipp: Ersetze die Beispiele (Herr Batzner, Saulheim, 800 €) durch deine echten Leads und Zahlen. Unter „Mein Pitch“ geht das automatisch.</div>`;
+}
+
+/* --- Auftreten --- */
+function auftritt(){
+  return `<div class="card"><h2>Auftreten</h2><p class="sub">Menschen kaufen zuerst die Person, dann das Produkt. So wirkst du sicher und vertrauenswürdig.</p></div>
+  <div class="grid">${PRESENCE.map(p=>`<div class="card"><h3>${esc(p[0])}</h3><p>${esc(p[1])}</p><div class="tip">${esc(p[2])}</div></div>`).join("")}</div>`;
+}
+
+/* --- Psychologie --- */
+function psy(){
+  return `<div class="card"><h2>Psychologie im Verkauf</h2><p class="sub">Zehn Prinzipien, die erklären, warum Menschen kaufen. Sie wirken am stärksten, wenn sie ehrlich eingesetzt werden. Wer trickst, verliert Vertrauen und Weiterempfehlungen.</p></div>
+  ${PSY.map((p,i)=>`<details ${psyOpen==i?"open":""} data-psy="${i}"><summary>${i+1}. ${esc(p[0])}</summary>
+  <p>${esc(p[1])}</p><div class="say">„${esc(p[2])}“</div><div class="limit">⚖ Grenze: ${esc(p[3])}</div></details>`).join("")}`;
+}
+
+/* --- Einwände --- */
+function einw(){
+  const c = OBJ[cardI], r = st.cards[cardI];
+  const cnt = {g:0,y:0,r:0}; Object.values(st.cards).forEach(v=>cnt[v]++);
+  return `<div class="card"><h2>Einwand-Training</h2>
+  <p class="sub">Lies den Einwand, antworte <b>laut</b>, dann deck die Musterantwort auf und bewerte dich ehrlich.</p>
+  <div class="row" style="margin-bottom:10px"><span class="badge g">Sicher: ${cnt.g}</span><span class="badge y">Fast: ${cnt.y}</span><span class="badge r">Üben: ${cnt.r}</span><span class="muted" style="font-size:14px">Karte ${cardI+1} von ${OBJ.length}</span></div>
+  <div class="card" style="background:var(--bg)"><div class="flash">„${esc(c[0])}“</div></div>
+  ${cardOpen?`<div class="say">„${esc(c[1])}“</div>
+  <p class="why">Muster: erst Verständnis zeigen, dann eine Frage stellen. Nie diskutieren, sondern den wahren Grund herausfinden.</p>
+  <div class="row"><button class="btn ok" data-rate="g">Sicher (+5)</button><button class="btn warn" data-rate="y">Fast (+2)</button><button class="btn bad" data-rate="r">Nochmal</button></div>`
+  :`<button class="btn" data-act="open">Antwort aufdecken</button>`}
+  <div class="row" style="margin-top:14px"><button class="btn ghost sm" data-act="prev">← Zurück</button><button class="btn ghost sm" data-act="next">Weiter →</button><button class="btn ghost sm" data-act="weak">Schwächste Karte</button>${r?`<span class="badge ${r}">${{g:"Sicher",y:"Fast",r:"Üben"}[r]}</span>`:""}</div></div>
+  <div class="card"><h3>Alle Einwände im Überblick</h3>${OBJ.map((o,i)=>`<details><summary>${st.cards[i]?`<span class="badge ${st.cards[i]}">●</span>`:""}${esc(o[0])}</summary><div class="say">„${esc(o[1])}“</div></details>`).join("")}</div>`;
+}
+
+/* --- Simulator --- */
+function sim(){
+  if (simI >= SIMS.length) {
+    const max = SIMS.length*10, pct = Math.round(simScore/max*100);
+    return `<div class="card"><h2>Ergebnis: ${simScore} / ${max}</h2><div class="bar"><i style="width:${pct}%"></i></div>
+    <p class="big">${pct>=80?"Stark! Jetzt ab ans echte Telefon.":pct>=50?"Gute Basis. Schau dir die Leitfäden nochmal an.":"Noch Luft nach oben. Lies den Kaltanruf-Leitfaden und versuch es nochmal."}</p>
+    <button class="btn" data-act="simreset">Nochmal spielen</button></div>`;
+  }
+  const s = SIMS[simI];
+  return `<div class="card"><div class="muted">Szene ${simI+1} von ${SIMS.length} · ${simScore} Punkte</div><div class="bar"><i style="width:${simI/SIMS.length*100}%"></i></div>
+  <p class="big">${esc(s.s)}</p><p class="muted">Was sagst du?</p>
+  ${s.o.map((o,i)=>{ let cls=""; if(simAns!==null){ cls = o[1]==10?"best":o[1]>0?"mid":(i==simAns?"wrong":""); } return `<button class="opt ${cls}" data-sim="${i}" ${simAns!==null?"disabled":""}>${esc(o[0])}</button>`; }).join("")}
+  ${simAns!==null?`<div class="${s.o[simAns][1]==10?"tip":s.o[simAns][1]>0?"limit":"avoid"}">${s.o[simAns][1]==10?"✓ Sehr gut. ":s.o[simAns][1]>0?"~ Geht so. ":"✗ Lieber nicht. "}${esc(s.o[simAns][2])}</div>
+  ${s.o[simAns][1]<10?`<p class="why">Beste Antwort: „${esc(s.o.find(o=>o[1]==10)[0])}“</p>`:""}
+  <button class="btn" data-act="simnext">Weiter →</button>`:""}</div>`;
+}
+
+/* --- Quiz --- */
+function quiz(){
+  if (quizI >= QUIZ.length) {
+    return `<div class="card"><h2>Quiz fertig: ${quizScore} / ${QUIZ.length}</h2><p class="muted">Bester Wert: ${st.quizBest} / ${QUIZ.length}</p><button class="btn" data-act="quizreset">Nochmal</button></div>`;
+  }
+  const q = QUIZ[quizI];
+  return `<div class="card"><div class="muted">Frage ${quizI+1} von ${QUIZ.length} · ${quizScore} richtig</div><div class="bar"><i style="width:${quizI/QUIZ.length*100}%"></i></div>
+  <p class="big">${esc(q[0])}</p>
+  ${q[1].map((a,i)=>{ let cls=""; if(quizAns!==null){ if(i==q[2]) cls="best"; else if(i==quizAns) cls="wrong"; } return `<button class="opt ${cls}" data-quiz="${i}" ${quizAns!==null?"disabled":""}>${esc(a)}</button>`; }).join("")}
+  ${quizAns!==null?`<div class="${quizAns==q[2]?"tip":"avoid"}">${quizAns==q[2]?"✓ Richtig. ":"✗ Nicht ganz. "}${esc(q[3])}</div><button class="btn" data-act="quiznext">Weiter →</button>`:""}</div>`;
+}
+
+/* --- Mein Pitch --- */
+const PDEF = {prod:"KI-Terminbuchung", ziel:"Anwaltskanzleien", prob:"Mandantenanfragen gehen verloren, wenn niemand ans Telefon geht", nutzen:"bucht rund um die Uhr Termine direkt in den Kalender", beob:"man Termine nur telefonisch bekommt", fall:"3", wert:"800", setup:"2500", monat:"500"};
+function pitch(){
+  const p = Object.assign({}, PDEF, st.pitch);
+  const f = (k,l,ph) => `<label>${l}</label><input data-p="${k}" value="${esc(p[k])}" placeholder="${esc(ph||"")}">`;
+  return `<div class="card"><h2>Mein Pitch</h2><p class="sub">Trag dein Produkt und deinen Kunden ein, und du bekommst deinen persönlichen Leitfaden zum Üben.</p>
+  <div class="grid" style="gap:10px">
+  <div>${f("prod","Produkt")}${f("ziel","Zielgruppe")}${f("prob","Problem des Kunden")}${f("nutzen","Was dein Produkt macht")}</div>
+  <div>${f("beob","Deine Beobachtung beim Kunden","z. B. keine Online-Buchung")}${f("fall","Verlorene Fälle pro Woche")}${f("wert","Wert pro Fall in €")}
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:8px"><div>${f("setup","Einrichtung €")}</div><div>${f("monat","Monatlich €")}</div></div></div></div></div>
+  <div class="card"><h3>Dein Leitfaden</h3><pre class="out" id="pout">${esc(pitchText(p))}</pre>
+  <div class="row" style="margin-top:10px"><button class="btn" data-act="copy">Kopieren</button><button class="btn ghost" data-act="pitchdone">Laut geübt (+10)</button></div></div>`;
+}
+function pitchText(p){
+  const n = v => Number(String(v).replace(/[^\d.]/g,"")) || 0;
+  const fmt = v => Math.round(v).toLocaleString("de-DE") + " €";
+  const lost = n(p.fall)*n(p.wert)*4.3, back = lost/3;
+  const day = n(p.monat)/30;
+  return `EIN-SATZ-PITCH
+Ich helfe ${p.ziel} dabei, dass ${p.prob.charAt(0).toLowerCase()+p.prob.slice(1)} nicht mehr passiert: Meine ${p.prod} ${p.nutzen}.
+
+KALTANRUF-EINSTIEG
+„Guten Tag, hier ist [Name] von [Firma]. Ganz ehrlich, ich rufe unangekündigt an. Geben Sie mir 30 Sekunden, und dann entscheiden Sie, ob wir weiterreden?“
+„Ich arbeite mit ${p.ziel}. Mir ist bei Ihnen aufgefallen, dass ${p.beob}. Darf ich Ihnen zwei kurze Fragen dazu stellen?“
+
+FRAGEN
+„Wie läuft das aktuell bei Ihnen?“
+„Wie oft passiert das ungefähr pro Woche?“
+„Was ist ein neuer Kunde für Sie im Schnitt wert?“
+
+SCHMERZ BEWUSST MACHEN
+„Wenn ich richtig rechne: ${p.fall} Fälle pro Woche mal ${fmt(n(p.wert))}, dann gehen Ihnen im Monat rund ${fmt(lost)} verloren. Ist das ungefähr realistisch?“
+
+TERMIN
+„Ich habe schon eine Vorschau vorbereitet, wie die ${p.prod} bei Ihnen aussehen würde. Passt Ihnen eher Dienstag um 10 oder Donnerstag um 14 Uhr?“
+
+NUTZEN UND PREIS (im Termin)
+„Wenn die Lösung nur jeden dritten verlorenen Fall rettet, sind das rund ${fmt(back)} im Monat.“
+„Die Einrichtung kostet einmalig ${fmt(n(p.setup))}, danach ${fmt(n(p.monat))} im Monat, also rund ${fmt(day)} am Tag.“
+„Sollen wir das so machen?“
+→ Danach: schweigen.`;
+}
+
+/* --- Journal --- */
+function journal(){
+  return `<div class="card"><h2>Gesprächs-Journal</h2><p class="sub">Nach jedem echten Gespräch zwei Minuten reflektieren. So lernst du doppelt so schnell.</p>
+  <label>Kunde / Kanzlei</label><input id="jK" placeholder="z. B. Kanzlei Batzner">
+  <label>Ergebnis</label><select id="jE"><option>Nicht erreicht</option><option>Kein Interesse</option><option>Rückruf vereinbart</option><option>Demo-Termin</option><option>Angebot geschickt</option><option>Abschluss 🎉</option></select>
+  <label>Welcher Einwand kam?</label><input id="jO" placeholder="z. B. Schicken Sie mir Infos per Mail">
+  <label>Was lief gut?</label><textarea id="jG"></textarea>
+  <label>Was mache ich beim nächsten Mal anders?</label><textarea id="jB"></textarea>
+  <button class="btn" data-act="jadd" style="margin-top:10px">Eintrag speichern (+10)</button></div>
+  ${st.journal.length?`<div class="card"><h3>Bisherige Einträge (${st.journal.length})</h3>${st.journal.slice().reverse().map((j,ri)=>{const i=st.journal.length-1-ri; return `<details><summary>${esc(j.d)} · ${esc(j.k||"ohne Namen")} · <span class="badge">${esc(j.e)}</span></summary>
+  ${j.o?`<p><b>Einwand:</b> ${esc(j.o)}</p>`:""}${j.g?`<p><b>Gut:</b> ${esc(j.g)}</p>`:""}${j.b?`<p><b>Anders:</b> ${esc(j.b)}</p>`:""}<button class="btn ghost sm" data-jdel="${i}">Löschen</button></details>`;}).join("")}</div>`:""}`;
+}
+
+/* ===================== EVENTS ===================== */
+document.addEventListener("click", e => {
+  const d = e.target.closest("[data-tab],[data-act],[data-guide],[data-step],[data-rate],[data-sim],[data-quiz],[data-jdel],summary");
+  if (!d) return;
+  const ds = d.dataset;
+  if (d.tagName=="SUMMARY") { const det=d.parentElement; if (det.dataset.psy!==undefined) psyOpen = det.open ? -1 : +det.dataset.psy; return; }
+  if (ds.tab) return go(ds.tab);
+  if (ds.guide) { guide = ds.guide; return render(); }
+  if (ds.step) { st.done[ds.step]=1; addPts(2,"Schritt geübt"); return render(); }
+  if (ds.rate) { const first = !st.cards[cardI]; st.cards[cardI]=ds.rate; if (ds.rate=="g") addPts(5,"Einwand sicher"); else if (ds.rate=="y") addPts(2,"Fast geschafft"); else save();
+    cardI=(cardI+1)%OBJ.length; cardOpen=false; return render(); }
+  if (ds.sim!==undefined) { simAns=+ds.sim; const p=SIMS[simI].o[simAns][1]; simScore+=p; if(p) addPts(p==10?10:2); return render(); }
+  if (ds.quiz!==undefined) { quizAns=+ds.quiz; if (quizAns==QUIZ[quizI][2]) { quizScore++; addPts(5,"Richtig"); } return render(); }
+  if (ds.jdel!==undefined) { if (confirm("Eintrag löschen?")) { st.journal.splice(+ds.jdel,1); save(); render(); } return; }
+  switch (ds.act) {
+    case "chal": st.chal[today()]=1; addPts(15,"Challenge geschafft"); render(); break;
+    case "open": cardOpen=true; render(); break;
+    case "next": cardI=(cardI+1)%OBJ.length; cardOpen=false; render(); break;
+    case "prev": cardI=(cardI-1+OBJ.length)%OBJ.length; cardOpen=false; render(); break;
+    case "weak": { const order={undefined:0,r:1,y:2,g:3}; let best=0; OBJ.forEach((_,i)=>{ if(order[st.cards[i]]<order[st.cards[best]]) best=i; }); cardI=best; cardOpen=false; render(); break; }
+    case "simnext": simI++; simAns=null; if (simI>=SIMS.length && simScore>st.simBest) { st.simBest=simScore; save(); } render(); break;
+    case "simreset": simI=0; simScore=0; simAns=null; render(); break;
+    case "quiznext": quizI++; quizAns=null; if (quizI>=QUIZ.length && quizScore>st.quizBest) { st.quizBest=quizScore; save(); } render(); break;
+    case "quizreset": quizI=0; quizScore=0; quizAns=null; render(); break;
+    case "copy": { const t=$("pout").textContent; (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Kopiert"),()=>toast("Kopieren nicht möglich, bitte markieren")); break; }
+    case "pitchdone": addPts(10,"Pitch geübt"); break;
+    case "jadd": { const v=id=>$(id).value.trim(); st.journal.push({d:today(),k:v("jK"),e:$("jE").value,o:v("jO"),g:v("jG"),b:v("jB")}); addPts(10,"Journal-Eintrag"); render(); break; }
+    case "export": { const b=new Blob([JSON.stringify(st,null,1)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="verkaufs-trainer-"+today()+".json"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); break; }
+  }
+});
+document.addEventListener("input", e => {
+  const k = e.target.dataset.p; if (!k) return;
+  st.pitch[k] = e.target.value; save();
+  const o = $("pout"); if (o) o.textContent = pitchText(Object.assign({}, PDEF, st.pitch));
+});
+document.addEventListener("change", e => {
+  if (e.target.id!="imp" || !e.target.files[0]) return;
+  const r = new FileReader();
+  r.onload = () => { try { const x=JSON.parse(r.result); if (typeof x.pts!="number") throw 0; st=Object.assign(st,x); save(); stats(); nav(); render(); toast("Sicherung geladen"); } catch(_) { toast("Keine gültige Sicherung"); } };
+  r.readAsText(e.target.files[0]);
+});
+
+stats(); nav(); render();
+</script>
+</body>
+</html>
